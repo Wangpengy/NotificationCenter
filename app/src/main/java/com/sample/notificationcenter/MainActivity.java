@@ -208,6 +208,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 editMode = false;
                 refresh.setEnabled(true);
                 adapter.editMode = false;
+                updateUnRead();
             }
 
             visibilityLayout.setVisibility(View.INVISIBLE);
@@ -237,6 +238,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             bean.setRead(true);
         }
         adapter.notifyDataSetChanged();
+        updateUnRead();
         Toast.makeText(this, "已读", Toast.LENGTH_SHORT).show();
     }
 
@@ -281,8 +283,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 bean.setChecked(false);
             }
             visibilityLayout.setVisibility(View.INVISIBLE);
-
-            updateUnRead();
         }
         adapter.editMode = editMode;
         adapter.notifyDataSetChanged();
