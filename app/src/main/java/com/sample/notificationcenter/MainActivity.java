@@ -1,7 +1,6 @@
 package com.sample.notificationcenter;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -44,6 +43,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean clicked;
     //区分是不是删除确认界面
     private boolean confirm;
+
+    //点击了全选
+    private boolean checkAll;
 
     private List<Integer> selectedPosition = new ArrayList<>();
 
@@ -126,6 +128,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     @Override
     public void onItemClick(int position) {
+        checkAll = false;
         all.setText("全选");
         clicked = false;
         this.position = position;
@@ -149,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         unread = 0;
         for (int i = 0; i < list.size(); i++) {
             if (!list.get(i).isRead()) {
-                unread ++;
+                unread++;
             }
         }
 
@@ -168,8 +171,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     @Override
     public void onChecked(int position) {
-        all.setText("全选");
-        clicked = false;
         this.position = position;
         MessageBean bean = list.get(position);
         setCheckData(bean.isChecked());
@@ -217,13 +218,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             delete.setEnabled(false);
 
             all.setText("全选");
-            adapter.checkAll = false;
-            adapter.checkNone = true;
-
-            //所有item点击状态设为false
-//            for (MessageBean bean : list) {
-//                bean.setChecked(false);
-//            }
+            checkAll = false;
             adapter.notifyDataSetChanged();
         }
     }
@@ -277,8 +272,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             all.setText("全选");
             clicked = false;
-            adapter.checkAll = false;
-            adapter.checkNone = true;
+            checkAll = false;
             for (MessageBean bean : list) {
                 bean.setChecked(false);
             }
@@ -296,25 +290,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (clicked) {
             //全选
             all.setText("取消全选");
-            adapter.checkAll = true;
-            adapter.checkNone = false;
+            checkAll = true;
 
             if (!read.isEnabled()) {
                 read.setEnabled(true);
                 delete.setEnabled(true);
             }
 
-            for (MessageBean bean : list) {
+            for (int i = 0; i < list.size(); i++) {
+                MessageBean bean = list.get(i);
                 bean.setChecked(true);
+                selectedPosition.add(i);
             }
 
         } else {
+            visibilityLayout.setVisibility(View.INVISIBLE);
+            selectedPosition.clear();
+
             read.setEnabled(false);
             delete.setEnabled(false);
             //反选
             all.setText("全选");
-            adapter.checkAll = false;
-            adapter.checkNone = true;
+            checkAll = false;
 
             for (MessageBean bean : list) {
                 bean.setChecked(false);
@@ -329,6 +326,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @param checked
      */
     private void setCheckData(boolean checked) {
+        if (checkAll) {
+            return;
+        }
+
+        all.setText("全选");
+        clicked = false;
+
         if (checked) {
             //checkbox为选中状态
             selectedPosition.add(position);
@@ -353,7 +357,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
 
-        Toast.makeText(this, "" + selectedPosition.size(), Toast.LENGTH_SHORT).show();
         if (selectedPosition.size() == 0) {
             all.setText("全选");
             clicked = false;
